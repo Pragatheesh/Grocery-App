@@ -7,7 +7,6 @@ import {
     SAVE_LIST_ITEM_REQUEST,
     SAVE_LIST_ITEM_SUCCESS
 } from "../actionTypes/grocery";
-import {BASE_URL} from "../config";
 
 const fetchListRequest = () => ({type: FETCH_LIST_REQUEST});
 
@@ -16,13 +15,13 @@ const fetchListFailure = err => ({type: FETCH_LIST_FAILURE, err});
 const fetchListSuccess = payload => ({type: FETCH_LIST_SUCCESS, payload});
 
 export const fetchListAsync = () => {
-    return (dispatch) => {
+    return (dispatch, getState, serviceManager) => {
         dispatch(fetchListRequest());
-        fetch(`${BASE_URL}/grocery`)
-            .then(res => res.json())
-            .then(list => {
-                dispatch(fetchListSuccess({list}))
-            })
+
+        let groceryService = serviceManager.get('GroceryService');
+
+        groceryService.getGroceryList()
+            .then(list => dispatch(fetchListSuccess({list})))
             .catch(error => dispatch(fetchListFailure(error)));
     };
 };
@@ -36,20 +35,13 @@ const saveListItemFailure = err => ({type: SAVE_LIST_ITEM_FAILURE, err});
 const saveListItemSuccess = payload => ({type: SAVE_LIST_ITEM_SUCCESS, payload});
 
 export const saveListItemAsync = (item) => {
-    return (dispatch) => {
+    return (dispatch, getState, serviceManager) => {
         dispatch(saveListItemRequest());
-        fetch(`${BASE_URL}/grocery`, {
-            headers: {
-                'Accept': 'application/json',
-                'Content-Type': 'application/json'
-            },
-            method: "POST",
-            body: JSON.stringify(item)
-        })
-            .then(res => res.json())
-            .then(item => {
-                dispatch(saveListItemSuccess({item}));
-            })
+
+        let groceryService = serviceManager.get('GroceryService');
+
+        groceryService.saveGroceryItem(item)
+            .then(item => dispatch(saveListItemSuccess({item})))
             .catch(error => dispatch(saveListItemFailure(error)));
     };
 };

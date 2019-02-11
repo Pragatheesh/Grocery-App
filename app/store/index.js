@@ -4,11 +4,11 @@ import thunk from "redux-thunk";
 
 import RootReducer from "../reducers";
 
-export default function configureStore() {
+export default function configureStore(serviceManager) {
     return createStore(
         RootReducer,
         composeWithDevTools(
-            applyMiddleware(thunk.withExtraArgument())
+            applyMiddleware(thunk.withExtraArgument(serviceManager))
         )
     );
 }
